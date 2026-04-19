@@ -11,7 +11,11 @@
       "Bash(mv _docs/* .)",
       "Bash(rmdir _docs)",
       "Bash(npm install *)",
-      "Bash(npx shadcn@latest init --defaults)"
+      "Bash(npx shadcn@latest init --defaults)",
+      "Bash(npx shadcn@latest add dialog form input select dropdown-menu avatar badge label textarea sonner)",
+      "Bash(npx tsc *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
