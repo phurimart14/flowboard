@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
+import { toast } from 'sonner'
 import { useCardStore } from '@/stores/cardStore'
 import { useBoardStore } from '@/stores/boardStore'
 import { createClient } from '@/lib/supabase/client'
@@ -16,12 +17,20 @@ import { Card, ColumnId, Priority } from '@/types'
 export const useCards = () => {
   const { cards, setCards, addCard, updateCard: storeUpdateCard, removeCard } = useCardStore()
   const activeBoard = useBoardStore((s) => s.activeBoard)
+  const [cardsLoading, setCardsLoading] = useState(false)
 
   const fetchCards = useCallback(async () => {
     if (!activeBoard) return
-    const result = await fetchCardsAction(activeBoard.id)
-    if (result.error) throw new Error(result.error)
-    setCards(result.data ?? [])
+    setCardsLoading(true)
+    try {
+      const result = await fetchCardsAction(activeBoard.id)
+      if (result.error) throw new Error(result.error)
+      setCards(result.data ?? [])
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to load cards')
+    } finally {
+      setCardsLoading(false)
+    }
   }, [activeBoard, setCards])
 
   useEffect(() => {
@@ -108,6 +117,7 @@ export const useCards = () => {
     const result = await deleteCardAction(cardId)
     if (result.error) {
       addCard(prev)
+      toast.error(result.error)
       throw new Error(result.error)
     }
   }
@@ -121,9 +131,10 @@ export const useCards = () => {
     const result = await updateCardPositionsAction(updates)
     if (result.error) {
       setCards(snapshot)
+      toast.error('Failed to save card position')
       throw new Error(result.error)
     }
   }
 
-  return { cards, createCard, updateCard, deleteCard, moveCards, refetch: fetchCards }
+  return { cards, cardsLoading, createCard, updateCard, deleteCard, moveCards, refetch: fetchCards }
 }

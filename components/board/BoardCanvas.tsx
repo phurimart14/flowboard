@@ -23,7 +23,7 @@ interface BoardCanvasProps {
 
 export const BoardCanvas = ({ board }: BoardCanvasProps) => {
   const { setActiveBoard } = useBoardStore()
-  const { cards, moveCards } = useCards()
+  const { cards, cardsLoading, moveCards } = useCards()
 
   const [selectedCard, setSelectedCard] = useState<Card | null>(null)
   const [addCardColumnId, setAddCardColumnId] = useState<ColumnId | null>(null)
@@ -105,6 +105,7 @@ export const BoardCanvas = ({ board }: BoardCanvasProps) => {
                 key={columnId}
                 columnId={columnId}
                 cards={getColumnCards(columnId)}
+                loading={cardsLoading}
                 onCardClick={setSelectedCard}
                 onAddCard={setAddCardColumnId}
               />

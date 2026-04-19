@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useCallback } from 'react'
+import { toast } from 'sonner'
 import { useBoardStore } from '@/stores/boardStore'
 import { fetchBoardsAction, createBoardAction, deleteBoardAction } from '@/app/(main)/actions/board'
 import { Board } from '@/types'
@@ -9,9 +10,13 @@ export const useBoards = () => {
   const { boards, setBoards, addBoard, removeBoard } = useBoardStore()
 
   const fetchBoards = useCallback(async () => {
-    const result = await fetchBoardsAction()
-    if (result.error) throw new Error(result.error)
-    setBoards(result.data ?? [])
+    try {
+      const result = await fetchBoardsAction()
+      if (result.error) throw new Error(result.error)
+      setBoards(result.data ?? [])
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to load boards')
+    }
   }, [setBoards])
 
   useEffect(() => {
