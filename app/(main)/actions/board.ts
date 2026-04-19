@@ -1,18 +1,18 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { Board } from '@/types'
 
 export const createBoardAction = async (name: string): Promise<{ data?: Board; error?: string }> => {
   const supabase = await createClient()
-
   const {
     data: { user },
   } = await supabase.auth.getUser()
-
   if (!user) return { error: 'Not authenticated' }
 
-  const { data, error } = await supabase
+  const admin = createAdminClient()
+  const { data, error } = await admin
     .from('boards')
     .insert({ name, owner_id: user.id })
     .select()
@@ -24,18 +24,29 @@ export const createBoardAction = async (name: string): Promise<{ data?: Board; e
 
 export const deleteBoardAction = async (boardId: string): Promise<{ error?: string }> => {
   const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
 
-  const { error } = await supabase.from('boards').delete().eq('id', boardId)
+  const admin = createAdminClient()
+  const { error } = await admin.from('boards').delete().eq('id', boardId).eq('owner_id', user.id)
   if (error) return { error: error.message }
   return {}
 }
 
 export const fetchBoardsAction = async (): Promise<{ data?: Board[]; error?: string }> => {
   const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
 
-  const { data, error } = await supabase
+  const admin = createAdminClient()
+  const { data, error } = await admin
     .from('boards')
     .select('*')
+    .eq('owner_id', user.id)
     .order('created_at', { ascending: true })
 
   if (error) return { error: error.message }

@@ -127,7 +127,19 @@ const { data } = await supabase.from('cards').select('*')
 
 ---
 
-## 9. ก่อน Code ทุกครั้ง ให้ตรวจ
+## 9. Git Workflow
+
+- ก่อนเริ่มทำแต่ละ Day ให้แยก branch ใหม่เสมอ
+  - format: `feat/day-X-description` เช่น `feat/day-4-column-card-ui`
+- ระหว่าง Day ทำงาน commit ทุกครั้งที่ feature สำคัญเสร็จ
+  - format: `feat: description` เช่น `feat: add KanbanCard component`
+- พอจบแต่ละ Day ให้ push branch ขึ้น GitHub
+- ก่อนเริ่ม Day ใหม่ให้ merge branch เดิมเข้า main ก่อน แล้วค่อยแยก branch ใหม่
+- ❌ ห้าม commit ไฟล์ `.env.local` เด็ดขาด
+
+---
+
+## 10. ก่อน Code ทุกครั้ง ให้ตรวจ
 
 1. อ่าน `prd.md` — feature นี้อยู่ใน scope ไหม?
 2. อ่าน `design.md` — สี, font, radius ถูกต้องไหม?
