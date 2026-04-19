@@ -8,6 +8,7 @@ import {
   createCardAction,
   updateCardAction,
   deleteCardAction,
+  updateCardPositionsAction,
 } from '@/app/(main)/actions/card'
 import { Card, ColumnId, Priority } from '@/types'
 
@@ -74,5 +75,18 @@ export const useCards = () => {
     }
   }
 
-  return { cards, createCard, updateCard, deleteCard, refetch: fetchCards }
+  const moveCards = async (
+    updates: Array<{ id: string; column_id: ColumnId; position: number }>
+  ): Promise<void> => {
+    const snapshot = [...cards]
+    updates.forEach(({ id, column_id, position }) => storeUpdateCard(id, { column_id, position }))
+
+    const result = await updateCardPositionsAction(updates)
+    if (result.error) {
+      setCards(snapshot)
+      throw new Error(result.error)
+    }
+  }
+
+  return { cards, createCard, updateCard, deleteCard, moveCards, refetch: fetchCards }
 }

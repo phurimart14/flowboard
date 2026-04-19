@@ -99,3 +99,20 @@ export const deleteCardAction = async (
   if (error) return { error: error.message }
   return {}
 }
+
+export const updateCardPositionsAction = async (
+  updates: Array<{ id: string; column_id: ColumnId; position: number }>
+): Promise<{ error?: string }> => {
+  const user = await getVerifiedUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const admin = createAdminClient()
+  const results = await Promise.all(
+    updates.map(({ id, column_id, position }) =>
+      admin.from('cards').update({ column_id, position }).eq('id', id)
+    )
+  )
+  const failed = results.find((r) => r.error)
+  if (failed?.error) return { error: failed.error.message }
+  return {}
+}

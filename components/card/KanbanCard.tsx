@@ -1,11 +1,14 @@
 'use client'
 
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { Card } from '@/types'
 import { PriorityBadge } from './PriorityBadge'
 
 interface KanbanCardProps {
   card: Card
   onClick: (card: Card) => void
+  isDragOverlay?: boolean
 }
 
 const formatDueDate = (dateStr: string): string => {
@@ -13,11 +16,26 @@ const formatDueDate = (dateStr: string): string => {
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
 
-export const KanbanCard = ({ card, onClick }: KanbanCardProps) => {
+export const KanbanCard = ({ card, onClick, isDragOverlay = false }: KanbanCardProps) => {
   const isOverdue = card.due_date && new Date(card.due_date) < new Date()
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: card.id,
+    disabled: isDragOverlay,
+  })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    scale: isDragOverlay ? '1.02' : undefined,
+  }
 
   return (
     <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
       className="
         bg-[var(--bg-surface)] border border-[var(--border)]
         rounded-[10px] p-3 cursor-grab active:cursor-grabbing
