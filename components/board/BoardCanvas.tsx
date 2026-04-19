@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import { useBoardStore } from '@/stores/boardStore'
-import { useCardStore } from '@/stores/cardStore'
+import { useCards } from '@/hooks/useCards'
 import { Board, Card, ColumnId, COLUMN_IDS } from '@/types'
 import { Column } from './Column'
+import { CardModal } from '@/components/card/CardModal'
 
 interface BoardCanvasProps {
   board: Board
@@ -12,7 +13,10 @@ interface BoardCanvasProps {
 
 export const BoardCanvas = ({ board }: BoardCanvasProps) => {
   const { setActiveBoard } = useBoardStore()
-  const cards = useCardStore((s) => s.cards)
+  const { cards } = useCards()
+
+  const [selectedCard, setSelectedCard] = useState<Card | null>(null)
+  const [addCardColumnId, setAddCardColumnId] = useState<ColumnId | null>(null)
 
   useEffect(() => {
     setActiveBoard(board)
@@ -27,29 +31,35 @@ export const BoardCanvas = ({ board }: BoardCanvasProps) => {
     [cards, board.id]
   )
 
-  const handleCardClick = (card: Card) => {
-    // Day 5: open CardModal
-    console.error('TODO: open card modal', card.id)
-  }
-
-  const handleAddCard = (columnId: ColumnId) => {
-    // Day 5: open AddCard flow
-    console.error('TODO: add card to', columnId)
-  }
-
   return (
-    <div className="flex-1 overflow-x-auto overflow-y-hidden">
-      <div className="flex gap-4 p-4 h-full items-start min-w-max">
-        {COLUMN_IDS.map((columnId) => (
-          <Column
-            key={columnId}
-            columnId={columnId}
-            cards={getColumnCards(columnId)}
-            onCardClick={handleCardClick}
-            onAddCard={handleAddCard}
-          />
-        ))}
+    <>
+      <div className="flex-1 overflow-x-auto overflow-y-hidden">
+        <div className="flex gap-4 p-4 h-full items-start min-w-max">
+          {COLUMN_IDS.map((columnId) => (
+            <Column
+              key={columnId}
+              columnId={columnId}
+              cards={getColumnCards(columnId)}
+              onCardClick={setSelectedCard}
+              onAddCard={setAddCardColumnId}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+
+      <CardModal
+        open={selectedCard !== null}
+        onOpenChange={(open) => { if (!open) setSelectedCard(null) }}
+        mode="edit"
+        card={selectedCard ?? undefined}
+      />
+
+      <CardModal
+        open={addCardColumnId !== null}
+        onOpenChange={(open) => { if (!open) setAddCardColumnId(null) }}
+        mode="create"
+        columnId={addCardColumnId ?? undefined}
+      />
+    </>
   )
 }
