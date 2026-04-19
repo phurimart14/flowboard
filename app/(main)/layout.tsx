@@ -14,30 +14,26 @@ export default async function MainLayout({ children }: MainLayoutProps) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // ถ้าไม่มี session จริงๆ → middleware ควรจัดการก่อนถึงตรงนี้แล้ว
   if (!user) redirect('/login')
 
-  // ดึง profile — ถ้าไม่มีให้ upsert จากข้อมูล auth (กรณี trigger ทำงานช้า)
-  let { data: profile } = await supabase
+  const { data: profileData } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single()
 
-  if (!profile) {
-    await supabase.from('profiles').upsert({
-      id: user.id,
-      email: user.email ?? '',
-      full_name: user.user_metadata?.full_name ?? null,
-    })
-    const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-    profile = data
+  // ถ้าไม่มี profile → build จาก auth user โดยตรง ไม่ redirect (เพื่อกัน loop)
+  const profile: Profile = profileData ?? {
+    id: user.id,
+    email: user.email ?? '',
+    full_name: user.user_metadata?.full_name ?? null,
+    avatar_url: null,
   }
-
-  if (!profile) redirect('/login')
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg-base)]">
-      <BoardHeader profile={profile as Profile} />
+      <BoardHeader profile={profile} />
       <main className="flex-1 flex flex-col overflow-hidden">{children}</main>
     </div>
   )
