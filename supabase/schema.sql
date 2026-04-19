@@ -134,11 +134,10 @@ CREATE POLICY "boards_update" ON public.boards
 CREATE POLICY "boards_delete" ON public.boards
   FOR DELETE USING (auth.uid() = owner_id);
 
--- board_members: เห็นเฉพาะ member ของ board ที่ตัวเองอยู่
+-- board_members: เห็นเฉพาะแถวของตัวเอง (ไม่มี self-reference → ไม่ recursive)
+-- user อื่นใน board เดียวกันดูผ่าน boards table แทน
 CREATE POLICY "board_members_select" ON public.board_members
-  FOR SELECT USING (
-    board_id IN (SELECT board_id FROM public.board_members WHERE user_id = auth.uid())
-  );
+  FOR SELECT USING (user_id = auth.uid());
 
 CREATE POLICY "board_members_insert" ON public.board_members
   FOR INSERT WITH CHECK (
