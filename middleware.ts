@@ -29,14 +29,17 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register')
+  const isAuthRoute = pathname === '/login' || pathname === '/register'
+  const isRootRoute = pathname === '/'
 
-  if (!user && !isAuthRoute) {
+  // ไม่มี session → บังคับไป login (ยกเว้นหน้า auth เอง)
+  if (!user && !isAuthRoute && !isRootRoute) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  if (user && isAuthRoute) {
-    return NextResponse.redirect(new URL('/', request.url))
+  // มี session + อยู่หน้า auth หรือ root → ไป /board โดยตรง
+  if (user && (isAuthRoute || isRootRoute)) {
+    return NextResponse.redirect(new URL('/board', request.url))
   }
 
   return supabaseResponse

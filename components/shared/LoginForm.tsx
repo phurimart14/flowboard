@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -19,6 +20,7 @@ type LoginValues = z.infer<typeof loginSchema>
 interface LoginFormProps {}
 
 export const LoginForm = ({}: LoginFormProps) => {
+  const router = useRouter()
   const [serverError, setServerError] = useState<string | null>(null)
 
   const {
@@ -29,11 +31,13 @@ export const LoginForm = ({}: LoginFormProps) => {
 
   const onSubmit = async (values: LoginValues) => {
     setServerError(null)
-    try {
-      await signIn(values.email, values.password)
-    } catch (err) {
-      setServerError(err instanceof Error ? err.message : 'Sign in failed')
+    const result = await signIn(values.email, values.password)
+    if (result.error) {
+      setServerError(result.error)
+      return
     }
+    router.push('/board')
+    router.refresh()
   }
 
   return (
@@ -49,9 +53,7 @@ export const LoginForm = ({}: LoginFormProps) => {
           className="rounded-[8px] border-[var(--kb-border)]"
           {...register('email')}
         />
-        {errors.email && (
-          <p className="text-xs text-red-500">{errors.email.message}</p>
-        )}
+        {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
       </div>
 
       <div className="space-y-1">
@@ -65,9 +67,7 @@ export const LoginForm = ({}: LoginFormProps) => {
           className="rounded-[8px] border-[var(--kb-border)]"
           {...register('password')}
         />
-        {errors.password && (
-          <p className="text-xs text-red-500">{errors.password.message}</p>
-        )}
+        {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
       </div>
 
       {serverError && (

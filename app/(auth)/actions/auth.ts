@@ -3,7 +3,11 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
-export const signUp = async (email: string, password: string, fullName: string) => {
+export const signUp = async (
+  email: string,
+  password: string,
+  fullName: string
+): Promise<{ error?: string }> => {
   const supabase = await createClient()
 
   const { error } = await supabase.auth.signUp({
@@ -12,19 +16,20 @@ export const signUp = async (email: string, password: string, fullName: string) 
     options: { data: { full_name: fullName } },
   })
 
-  if (error) throw new Error(error.message)
-
-  redirect('/login?registered=1')
+  if (error) return { error: error.message }
+  return {}
 }
 
-export const signIn = async (email: string, password: string) => {
+export const signIn = async (
+  email: string,
+  password: string
+): Promise<{ error?: string }> => {
   const supabase = await createClient()
 
   const { error } = await supabase.auth.signInWithPassword({ email, password })
 
-  if (error) throw new Error(error.message)
-
-  redirect('/board')
+  if (error) return { error: error.message }
+  return {}
 }
 
 export const signOut = async () => {
