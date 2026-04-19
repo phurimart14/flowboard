@@ -43,10 +43,22 @@ export const fetchBoardsAction = async (): Promise<{ data?: Board[]; error?: str
   if (!user) return { error: 'Not authenticated' }
 
   const admin = createAdminClient()
+
+  // Fetch all boards the user is a member of (includes owned boards via trigger)
+  const { data: memberRows, error: memberError } = await admin
+    .from('board_members')
+    .select('board_id')
+    .eq('user_id', user.id)
+
+  if (memberError) return { error: memberError.message }
+
+  const boardIds = memberRows?.map((m) => m.board_id) ?? []
+  if (boardIds.length === 0) return { data: [] }
+
   const { data, error } = await admin
     .from('boards')
     .select('*')
-    .eq('owner_id', user.id)
+    .in('id', boardIds)
     .order('created_at', { ascending: true })
 
   if (error) return { error: error.message }

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { LayoutDashboard, ChevronDown, Plus } from 'lucide-react'
+import { LayoutDashboard, ChevronDown, Plus, Users } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +13,7 @@ import {
 import { ThemeToggle } from '@/components/shared/ThemeToggle'
 import { UserAvatar } from '@/components/shared/UserAvatar'
 import { CreateBoardModal } from '@/components/board/CreateBoardModal'
+import { InviteMemberModal } from '@/components/board/InviteMemberModal'
 import { useBoards } from '@/hooks/useBoards'
 import { useBoardStore } from '@/stores/boardStore'
 import { Board, Profile } from '@/types'
@@ -27,6 +28,7 @@ export const BoardHeader = ({ profile, currentBoardId }: BoardHeaderProps) => {
   const { boards } = useBoards()
   const { activeBoard } = useBoardStore()
   const [createOpen, setCreateOpen] = useState(false)
+  const [membersOpen, setMembersOpen] = useState(false)
 
   const handleBoardSelect = (board: Board) => {
     router.push(`/board/${board.id}`)
@@ -77,8 +79,17 @@ export const BoardHeader = ({ profile, currentBoardId }: BoardHeaderProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Right: Theme + User */}
+        {/* Right: Members + Theme + User */}
         <div className="flex items-center gap-2">
+          {activeBoard && (
+            <button
+              onClick={() => setMembersOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-sm font-semibold text-[var(--text-secondary)] hover:bg-[var(--bg-column)] hover:text-[var(--text-primary)] transition-colors duration-150"
+            >
+              <Users className="h-4 w-4" />
+              <span className="hidden sm:inline">Members</span>
+            </button>
+          )}
           <ThemeToggle />
           <UserAvatar profile={profile} />
         </div>
@@ -89,6 +100,15 @@ export const BoardHeader = ({ profile, currentBoardId }: BoardHeaderProps) => {
         onOpenChange={setCreateOpen}
         onCreated={handleCreated}
       />
+
+      {activeBoard && (
+        <InviteMemberModal
+          open={membersOpen}
+          onOpenChange={setMembersOpen}
+          board={activeBoard}
+          currentProfile={profile}
+        />
+      )}
     </>
   )
 }
