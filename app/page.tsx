@@ -1,15 +1,7 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 
-export default async function HomePage() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (user) {
-    redirect('/board')
-  } else {
-    redirect('/login')
-  }
+// Middleware handles session-based routing.
+// This page is only reached when no session exists (middleware lets it through).
+export default function HomePage() {
+  redirect('/login')
 }

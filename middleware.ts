@@ -2,6 +2,12 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  // ข้าม RSC/prefetch requests — Next.js App Router จัดการเองได้
+  const isRSCRequest = request.headers.has('RSC') || request.headers.has('Next-Router-Prefetch')
+  if (isRSCRequest) {
+    return NextResponse.next()
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -28,23 +34,25 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const { pathname } = request.nextUrl
-
   const isAuthRoute = pathname === '/login' || pathname === '/register'
-  const isRootRoute = pathname === '/'
 
-  // ไม่มี session → บังคับไป login (ยกเว้นหน้า auth เอง)
-  if (!user && !isAuthRoute && !isRootRoute) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  if (!user && !isAuthRoute) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
   }
 
-  // มี session + อยู่หน้า auth หรือ root → ไป /board โดยตรง
-  if (user && (isAuthRoute || isRootRoute)) {
-    return NextResponse.redirect(new URL('/board', request.url))
+  if (user && isAuthRoute) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/board'
+    return NextResponse.redirect(url)
   }
 
   return supabaseResponse
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|_next/data|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }

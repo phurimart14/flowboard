@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -20,7 +19,6 @@ type LoginValues = z.infer<typeof loginSchema>
 interface LoginFormProps {}
 
 export const LoginForm = ({}: LoginFormProps) => {
-  const router = useRouter()
   const [serverError, setServerError] = useState<string | null>(null)
 
   const {
@@ -36,8 +34,9 @@ export const LoginForm = ({}: LoginFormProps) => {
       setServerError(result.error)
       return
     }
-    router.push('/board')
-    router.refresh()
+    // Full page navigation — ensures session cookies are sent with the request
+    // router.push() + router.refresh() causes competing navigations → throttle loop
+    window.location.href = '/board'
   }
 
   return (

@@ -16,11 +16,22 @@ export default async function MainLayout({ children }: MainLayoutProps) {
 
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
+  // ดึง profile — ถ้าไม่มีให้ upsert จากข้อมูล auth (กรณี trigger ทำงานช้า)
+  let { data: profile } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single()
+
+  if (!profile) {
+    await supabase.from('profiles').upsert({
+      id: user.id,
+      email: user.email ?? '',
+      full_name: user.user_metadata?.full_name ?? null,
+    })
+    const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+    profile = data
+  }
 
   if (!profile) redirect('/login')
 
