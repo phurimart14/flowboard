@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p _docs)",
+      "Bash(mv architecture.md CLAUDE.md design.md prd.md tasks.md _docs/)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --app --no-src-dir --no-import-alias --eslint)",
+      "Read(//d/Codeing/claude/project/kanban/**)",
+      "Bash(npx create-next-app@latest flowboard-temp --typescript --tailwind --app --no-src-dir --no-import-alias --eslint)",
+      "Bash(cp -r flowboard-temp/. flowboard/)",
+      "Bash(rm -rf flowboard-temp)",
+      "Bash(mv _docs/* .)",
+      "Bash(rmdir _docs)",
+      "Bash(npm install *)",
+      "Bash(npx shadcn@latest init --defaults)"
+    ]
+  }
+}
