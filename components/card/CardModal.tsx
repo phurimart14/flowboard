@@ -157,7 +157,7 @@ export const CardModal = ({ open, onOpenChange, mode, columnId, card }: CardModa
               </Label>
               <Select
                 value={priority}
-                onValueChange={(val: string) => setPriority(val as Priority | '')}
+                onValueChange={(val: string | null) => setPriority((val ?? '') as Priority | '')}
               >
                 <SelectTrigger className="w-full rounded-[8px]">
                   <SelectValue placeholder="None" />
