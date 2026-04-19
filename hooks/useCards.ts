@@ -3,6 +3,7 @@
 import { useEffect, useCallback } from 'react'
 import { useCardStore } from '@/stores/cardStore'
 import { useBoardStore } from '@/stores/boardStore'
+import { createClient } from '@/lib/supabase/client'
 import {
   fetchCardsAction,
   createCardAction,
@@ -30,6 +31,39 @@ export const useCards = () => {
       setCards([])
     }
   }, [activeBoard, fetchCards, setCards])
+
+  useEffect(() => {
+    if (!activeBoard) return
+
+    const supabase = createClient()
+    const channel = supabase
+      .channel(`cards-${activeBoard.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'cards', filter: `board_id=eq.${activeBoard.id}` },
+        (payload) => {
+          const incoming = payload.new as Card
+          if (!useCardStore.getState().cards.find((c) => c.id === incoming.id)) {
+            addCard(incoming)
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'cards', filter: `board_id=eq.${activeBoard.id}` },
+        (payload) => storeUpdateCard((payload.new as Card).id, payload.new as Partial<Card>)
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'cards', filter: `board_id=eq.${activeBoard.id}` },
+        (payload) => removeCard((payload.old as { id: string }).id)
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [activeBoard, addCard, storeUpdateCard, removeCard])
 
   const createCard = async (
     columnId: ColumnId,
