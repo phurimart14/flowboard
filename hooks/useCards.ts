@@ -36,8 +36,11 @@ export const useCards = () => {
     if (!activeBoard) return
 
     const supabase = createClient()
-    const channel = supabase
-      .channel(`cards-${activeBoard.id}`)
+    // Unique name per mount prevents reuse of an already-subscribed channel
+    // when React Strict Mode runs the effect twice
+    const channel = supabase.channel(`cards-${activeBoard.id}-${Date.now()}`)
+
+    channel
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'cards', filter: `board_id=eq.${activeBoard.id}` },
