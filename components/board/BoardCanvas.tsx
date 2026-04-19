@@ -98,7 +98,7 @@ export const BoardCanvas = ({ board }: BoardCanvasProps) => {
   return (
     <>
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <div className="flex-1 overflow-x-auto overflow-y-hidden">
+        <div className="flex-1 overflow-x-auto overflow-y-hidden board-scroll">
           <div className="flex gap-4 p-4 h-full items-start min-w-max">
             {COLUMN_IDS.map((columnId) => (
               <Column

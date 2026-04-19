@@ -90,7 +90,7 @@ export const InviteMemberModal = ({ open, onOpenChange, board, currentProfile }:
           {members.map((m) => (
             <div key={m.id} className="flex items-center justify-between gap-3 py-1.5">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-[var(--accent-soft)] flex items-center justify-center text-[11px] font-bold text-[var(--accent)] shrink-0">
+                <div className="w-8 h-8 rounded-full bg-[var(--kb-accent-soft)] flex items-center justify-center text-[11px] font-bold text-[var(--kb-accent)] shrink-0">
                   {getInitials(m)}
                 </div>
                 <div className="min-w-0">
@@ -102,7 +102,7 @@ export const InviteMemberModal = ({ open, onOpenChange, board, currentProfile }:
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 {m.user_id === board.owner_id && (
-                  <span className="text-[11px] font-semibold text-[var(--accent)] bg-[var(--accent-soft)] px-2 py-0.5 rounded-[6px]">
+                  <span className="text-[11px] font-semibold text-[var(--kb-accent)] bg-[var(--kb-accent-soft)] px-2 py-0.5 rounded-[6px]">
                     Owner
                   </span>
                 )}
@@ -136,7 +136,7 @@ export const InviteMemberModal = ({ open, onOpenChange, board, currentProfile }:
               <Button
                 type="submit"
                 disabled={isInviting || !email.trim()}
-                className="rounded-[8px] bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white shrink-0 active:scale-[0.97] transition-all duration-150"
+                className="rounded-[8px] bg-[var(--kb-accent)] hover:bg-[var(--kb-accent-hover)] text-white shrink-0 active:scale-[0.97] transition-all duration-150"
               >
                 <UserPlus className="w-4 h-4 mr-1.5" />
                 {isInviting ? 'Inviting…' : 'Invite'}

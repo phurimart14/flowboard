@@ -44,9 +44,9 @@ export const BoardHeader = ({ profile, currentBoardId }: BoardHeaderProps) => {
     <>
       <header className="h-14 flex items-center justify-between px-4 bg-[var(--bg-surface)] border-b border-[var(--kb-border)] shrink-0">
         {/* Logo */}
-        <div className="flex items-center gap-2">
-          <LayoutDashboard className="h-5 w-5 text-[var(--kb-accent)]" />
-          <span className="text-lg font-bold text-[var(--text-primary)]">FlowBoard</span>
+        <div className="flex items-center gap-2 shrink-0">
+          <LayoutDashboard className="h-5 w-5 text-[var(--kb-accent)] shrink-0" />
+          <span className="text-lg font-bold text-[var(--text-primary)] hidden sm:block">FlowBoard</span>
         </div>
 
         {/* Board Dropdown */}

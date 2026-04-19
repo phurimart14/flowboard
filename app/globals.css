@@ -141,3 +141,23 @@
     font-family: var(--font-nunito), sans-serif;
   }
 }
+
+/* Thin scrollbar for board canvas and column cards */
+.board-scroll::-webkit-scrollbar,
+.column-scroll::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.board-scroll::-webkit-scrollbar-track,
+.column-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.board-scroll::-webkit-scrollbar-thumb,
+.column-scroll::-webkit-scrollbar-thumb {
+  background: var(--kb-border);
+  border-radius: 3px;
+}
+.board-scroll::-webkit-scrollbar-thumb:hover,
+.column-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}

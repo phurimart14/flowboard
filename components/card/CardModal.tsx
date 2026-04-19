@@ -202,7 +202,7 @@ export const CardModal = ({ open, onOpenChange, mode, columnId, card }: CardModa
             <Button
               type="submit"
               disabled={isSubmitting || isDeleting}
-              className="rounded-[8px] bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white transition-all duration-150 active:scale-[0.97]"
+              className="rounded-[8px] bg-[var(--kb-accent)] hover:bg-[var(--kb-accent-hover)] text-white transition-all duration-150 active:scale-[0.97]"
             >
               {isSubmitting
                 ? mode === 'create' ? 'Adding…' : 'Saving…'

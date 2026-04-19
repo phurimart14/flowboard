@@ -23,7 +23,7 @@ export const Column = ({ columnId, cards, onCardClick, onAddCard }: ColumnProps)
 
       <div
         ref={setNodeRef}
-        className={`flex flex-col gap-2 p-2 flex-1 overflow-y-auto max-h-[calc(100vh-140px)] min-h-[60px] rounded-b-[4px] transition-colors duration-150 ${
+        className={`flex flex-col gap-2 p-2 flex-1 overflow-y-auto max-h-[calc(100vh-140px)] min-h-[60px] rounded-b-[4px] transition-colors duration-150 column-scroll ${
           isOver ? 'bg-[var(--accent-soft)]' : ''
         }`}
       >

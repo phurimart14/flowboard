@@ -15,7 +15,10 @@
       "Bash(npx shadcn@latest add dialog form input select dropdown-menu avatar badge label textarea sonner)",
       "Bash(npx tsc *)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(git checkout *)",
+      "Bash(git merge *)",
+      "Bash(git stash *)"
     ]
   }
 }
