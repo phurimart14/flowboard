@@ -45,37 +45,39 @@ export const useCards = () => {
     if (!activeBoard) return
 
     const supabase = createClient()
-    // Unique name per mount prevents reuse of an already-subscribed channel
-    // when React Strict Mode runs the effect twice
-    const channel = supabase.channel(`cards-${activeBoard.id}-${Date.now()}`)
+    const boardId = activeBoard.id
+    const channel = supabase.channel(`cards-${boardId}-${Date.now()}`)
 
     channel
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'cards', filter: `board_id=eq.${activeBoard.id}` },
+        { event: 'INSERT', schema: 'public', table: 'cards', filter: `board_id=eq.${boardId}` },
         (payload) => {
           const incoming = payload.new as Card
-          if (!useCardStore.getState().cards.find((c) => c.id === incoming.id)) {
-            addCard(incoming)
-          }
+          const { cards: current, addCard: add } = useCardStore.getState()
+          if (!current.find((c) => c.id === incoming.id)) add(incoming)
         }
       )
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'cards', filter: `board_id=eq.${activeBoard.id}` },
-        (payload) => storeUpdateCard((payload.new as Card).id, payload.new as Partial<Card>)
+        { event: 'UPDATE', schema: 'public', table: 'cards', filter: `board_id=eq.${boardId}` },
+        (payload) => {
+          useCardStore.getState().updateCard((payload.new as Card).id, payload.new as Partial<Card>)
+        }
       )
       .on(
         'postgres_changes',
-        { event: 'DELETE', schema: 'public', table: 'cards', filter: `board_id=eq.${activeBoard.id}` },
-        (payload) => removeCard((payload.old as { id: string }).id)
+        { event: 'DELETE', schema: 'public', table: 'cards', filter: `board_id=eq.${boardId}` },
+        (payload) => {
+          useCardStore.getState().removeCard((payload.old as { id: string }).id)
+        }
       )
       .subscribe()
 
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [activeBoard, addCard, storeUpdateCard, removeCard])
+  }, [activeBoard])
 
   const createCard = async (
     columnId: ColumnId,
