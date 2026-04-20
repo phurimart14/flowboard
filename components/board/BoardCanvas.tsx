@@ -12,6 +12,7 @@ import {
 } from '@dnd-kit/core'
 import { useBoardStore } from '@/stores/boardStore'
 import { useCards } from '@/hooks/useCards'
+import { useCardsSync } from '@/hooks/useCardsSync'
 import { Board, Card, ColumnId, COLUMN_IDS } from '@/types'
 import { Column } from './Column'
 import { CardModal } from '@/components/card/CardModal'
@@ -23,7 +24,8 @@ interface BoardCanvasProps {
 
 export const BoardCanvas = ({ board }: BoardCanvasProps) => {
   const { setActiveBoard } = useBoardStore()
-  const { cards, cardsLoading, moveCards } = useCards()
+  const { cardsLoading } = useCardsSync()
+  const { cards, moveCards } = useCards()
 
   const [selectedCard, setSelectedCard] = useState<Card | null>(null)
   const [addCardColumnId, setAddCardColumnId] = useState<ColumnId | null>(null)
