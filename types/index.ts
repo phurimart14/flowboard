@@ -1,5 +1,6 @@
 export type Priority = 'high' | 'mid' | 'low'
 export type ColumnId = 'backlog' | 'todo' | 'in_progress' | 'review' | 'done'
+export type CardStatus = 'todo' | 'in_progress' | 'done'
 
 export interface Board {
   id: string
@@ -16,6 +17,7 @@ export interface Card {
   description?: string
   due_date?: string
   priority?: Priority
+  status: CardStatus
   position: number
   created_by: string
   created_at: string

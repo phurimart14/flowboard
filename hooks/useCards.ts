@@ -9,7 +9,7 @@ import {
   updateCardPositionsAction,
 } from '@/app/(main)/actions/card'
 import { toast } from 'sonner'
-import { Card, ColumnId, Priority } from '@/types'
+import { Card, CardStatus, ColumnId, Priority } from '@/types'
 
 export const useCards = () => {
   const { cards, setCards, addCard, updateCard: storeUpdateCard, removeCard } = useCardStore()
@@ -20,10 +20,11 @@ export const useCards = () => {
     title: string,
     description?: string,
     dueDate?: string,
-    priority?: Priority
+    priority?: Priority,
+    status?: CardStatus
   ): Promise<Card> => {
     if (!activeBoard) throw new Error('No active board')
-    const result = await createCardAction(activeBoard.id, columnId, title, description, dueDate, priority)
+    const result = await createCardAction(activeBoard.id, columnId, title, description, dueDate, priority, status)
     if (result.error) throw new Error(result.error)
     const card = result.data!
     addCard(card)
@@ -32,7 +33,7 @@ export const useCards = () => {
 
   const updateCard = async (
     cardId: string,
-    updates: Partial<Pick<Card, 'title' | 'description' | 'due_date' | 'priority' | 'column_id' | 'position'>>
+    updates: Partial<Pick<Card, 'title' | 'description' | 'due_date' | 'priority' | 'status' | 'column_id' | 'position'>>
   ): Promise<void> => {
     const prev = cards.find((c) => c.id === cardId)
     if (!prev) return

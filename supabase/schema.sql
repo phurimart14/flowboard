@@ -175,3 +175,12 @@ CREATE POLICY "cards_delete" ON public.cards
 -- ============================================
 ALTER PUBLICATION supabase_realtime ADD TABLE public.cards;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.board_members;
+
+-- ============================================
+-- Migration: add status column to cards
+-- Run once in Supabase SQL Editor
+-- ============================================
+ALTER TABLE public.cards
+  ADD COLUMN IF NOT EXISTS status text
+  NOT NULL DEFAULT 'todo'
+  CHECK (status IN ('todo','in_progress','done'));

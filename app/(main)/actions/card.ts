@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { Card, ColumnId, Priority } from '@/types'
+import { Card, CardStatus, ColumnId, Priority } from '@/types'
 
 const getVerifiedUser = async () => {
   const supabase = await createClient()
@@ -35,7 +35,8 @@ export const createCardAction = async (
   title: string,
   description?: string,
   dueDate?: string,
-  priority?: Priority
+  priority?: Priority,
+  status: CardStatus = 'todo'
 ): Promise<{ data?: Card; error?: string }> => {
   const user = await getVerifiedUser()
   if (!user) return { error: 'Not authenticated' }
@@ -59,6 +60,7 @@ export const createCardAction = async (
       description: description?.trim() || null,
       due_date: dueDate || null,
       priority: priority || null,
+      status,
       position,
       created_by: user.id,
     })
@@ -71,7 +73,7 @@ export const createCardAction = async (
 
 export const updateCardAction = async (
   cardId: string,
-  updates: Partial<Pick<Card, 'title' | 'description' | 'due_date' | 'priority' | 'column_id' | 'position'>>
+  updates: Partial<Pick<Card, 'title' | 'description' | 'due_date' | 'priority' | 'status' | 'column_id' | 'position'>>
 ): Promise<{ data?: Card; error?: string }> => {
   const user = await getVerifiedUser()
   if (!user) return { error: 'Not authenticated' }
