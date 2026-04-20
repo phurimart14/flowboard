@@ -41,17 +41,18 @@ export const useCards = () => {
     }
   }, [activeBoard, fetchCards, setCards])
 
+  const activeBoardId = activeBoard?.id
+
   useEffect(() => {
-    if (!activeBoard) return
+    if (!activeBoardId) return
 
     const supabase = createClient()
-    const boardId = activeBoard.id
-    const channel = supabase.channel(`cards-${boardId}-${Date.now()}`)
+    const channel = supabase.channel(`cards-${activeBoardId}`)
 
     channel
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'cards', filter: `board_id=eq.${boardId}` },
+        { event: 'INSERT', schema: 'public', table: 'cards', filter: `board_id=eq.${activeBoardId}` },
         (payload) => {
           const incoming = payload.new as Card
           const { cards: current, addCard: add } = useCardStore.getState()
@@ -60,14 +61,14 @@ export const useCards = () => {
       )
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'cards', filter: `board_id=eq.${boardId}` },
+        { event: 'UPDATE', schema: 'public', table: 'cards', filter: `board_id=eq.${activeBoardId}` },
         (payload) => {
           useCardStore.getState().updateCard((payload.new as Card).id, payload.new as Partial<Card>)
         }
       )
       .on(
         'postgres_changes',
-        { event: 'DELETE', schema: 'public', table: 'cards', filter: `board_id=eq.${boardId}` },
+        { event: 'DELETE', schema: 'public', table: 'cards', filter: `board_id=eq.${activeBoardId}` },
         (payload) => {
           useCardStore.getState().removeCard((payload.old as { id: string }).id)
         }
@@ -75,9 +76,10 @@ export const useCards = () => {
       .subscribe()
 
     return () => {
+      channel.unsubscribe()
       supabase.removeChannel(channel)
     }
-  }, [activeBoard])
+  }, [activeBoardId])
 
   const createCard = async (
     columnId: ColumnId,
