@@ -82,17 +82,18 @@ export const KanbanCard = ({ card, onClick, isDragOverlay = false }: KanbanCardP
         )}
       </div>
 
-      <button
-        type="button"
-        title={STATUS_LABEL[currentStatus]}
-        onClick={handleStatusClick}
-        onPointerDown={handleStatusPointerDown}
-        className={`mb-2 h-[6px] w-8 rounded-full ${STATUS_COLOR[currentStatus]} hover:brightness-110 active:brightness-90 transition-all duration-150 cursor-pointer block`}
-      />
-
-      <p className="text-[14px] font-medium text-[var(--text-primary)] leading-snug">
-        {card.title}
-      </p>
+      <div className="flex items-center gap-2 mt-1">
+        <button
+          type="button"
+          title={STATUS_LABEL[currentStatus]}
+          onClick={handleStatusClick}
+          onPointerDown={handleStatusPointerDown}
+          className={`shrink-0 h-3 w-8 rounded-full ${STATUS_COLOR[currentStatus]} hover:brightness-110 active:brightness-90 transition-all duration-150 cursor-pointer`}
+        />
+        <p className="text-[14px] font-medium text-[var(--text-primary)] leading-snug">
+          {card.title}
+        </p>
+      </div>
       {card.description && (
         <p className="mt-1 text-[13px] text-[var(--text-secondary)] line-clamp-2 leading-snug">
           {card.description}
