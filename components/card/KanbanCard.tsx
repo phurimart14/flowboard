@@ -14,10 +14,16 @@ interface KanbanCardProps {
 
 const STATUS_CYCLE: CardStatus[] = ['todo', 'in_progress', 'done']
 
-const STATUS_STYLE: Record<CardStatus, { bar: string; label: string }> = {
-  todo:        { bar: 'bg-red-500',    label: 'ยัง' },
-  in_progress: { bar: 'bg-yellow-400', label: 'กำลัง' },
-  done:        { bar: 'bg-green-500',  label: 'ทำแล้ว' },
+const STATUS_COLOR: Record<CardStatus, string> = {
+  todo:        'bg-red-500',
+  in_progress: 'bg-yellow-400',
+  done:        'bg-green-500',
+}
+
+const STATUS_LABEL: Record<CardStatus, string> = {
+  todo:        'ยัง',
+  in_progress: 'กำลัง',
+  done:        'ทำแล้ว',
 }
 
 const formatDueDate = (dateStr: string): string => {
@@ -29,7 +35,6 @@ export const KanbanCard = ({ card, onClick, isDragOverlay = false }: KanbanCardP
   const { updateCard } = useCards()
   const isOverdue = card.due_date && new Date(card.due_date) < new Date()
   const currentStatus: CardStatus = card.status ?? 'todo'
-  const { bar, label } = STATUS_STYLE[currentStatus]
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: card.id,
@@ -45,8 +50,12 @@ export const KanbanCard = ({ card, onClick, isDragOverlay = false }: KanbanCardP
 
   const handleStatusClick = (e: React.MouseEvent) => {
     e.stopPropagation()
-    const nextIndex = (STATUS_CYCLE.indexOf(currentStatus) + 1) % STATUS_CYCLE.length
-    updateCard(card.id, { status: STATUS_CYCLE[nextIndex] })
+    const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(currentStatus) + 1) % STATUS_CYCLE.length]
+    updateCard(card.id, { status: next })
+  }
+
+  const handleStatusPointerDown = (e: React.PointerEvent) => {
+    e.stopPropagation()
   }
 
   return (
@@ -57,32 +66,30 @@ export const KanbanCard = ({ card, onClick, isDragOverlay = false }: KanbanCardP
       {...listeners}
       className="
         bg-[var(--bg-surface)] border border-[var(--border)]
-        rounded-[10px] pt-3 px-3 pb-0 cursor-grab active:cursor-grabbing
+        rounded-[10px] p-3 cursor-grab active:cursor-grabbing
         shadow-[0_1px_3px_rgba(0,0,0,0.08)]
         hover:shadow-[0_4px_12px_rgba(0,0,0,0.12)]
-        transition-shadow duration-150
-        select-none overflow-hidden
+        transition-shadow duration-150 select-none
       "
       onClick={() => onClick(card)}
     >
-      {(card.priority || card.due_date) && (
-        <div className="flex items-center justify-between mb-2 gap-2">
-          {card.priority ? (
-            <PriorityBadge priority={card.priority} />
-          ) : (
-            <span />
-          )}
-          {card.due_date && (
-            <span
-              className={`text-[11px] font-semibold ${
-                isOverdue ? 'text-[#DC2626]' : 'text-[var(--text-secondary)]'
-              }`}
-            >
-              {formatDueDate(card.due_date)}
-            </span>
-          )}
-        </div>
-      )}
+      <div className="flex items-center justify-between mb-1 gap-2 min-h-[20px]">
+        {card.priority ? <PriorityBadge priority={card.priority} /> : <span />}
+        {card.due_date && (
+          <span className={`text-[11px] font-semibold ${isOverdue ? 'text-[#DC2626]' : 'text-[var(--text-secondary)]'}`}>
+            {formatDueDate(card.due_date)}
+          </span>
+        )}
+      </div>
+
+      <button
+        type="button"
+        title={STATUS_LABEL[currentStatus]}
+        onClick={handleStatusClick}
+        onPointerDown={handleStatusPointerDown}
+        className={`mb-2 h-[6px] w-8 rounded-full ${STATUS_COLOR[currentStatus]} hover:brightness-110 active:brightness-90 transition-all duration-150 cursor-pointer block`}
+      />
+
       <p className="text-[14px] font-medium text-[var(--text-primary)] leading-snug">
         {card.title}
       </p>
@@ -91,15 +98,6 @@ export const KanbanCard = ({ card, onClick, isDragOverlay = false }: KanbanCardP
           {card.description}
         </p>
       )}
-
-      <div className="mt-2 -mx-3">
-        <button
-          type="button"
-          onClick={handleStatusClick}
-          title={label}
-          className={`w-full h-[6px] ${bar} hover:brightness-110 active:brightness-90 transition-all duration-150 cursor-pointer`}
-        />
-      </div>
     </div>
   )
 }
