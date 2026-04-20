@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useCallback, useState } from 'react'
+import { useEffect, useCallback, useState, useRef } from 'react'
 import { toast } from 'sonner'
 import { useCardStore } from '@/stores/cardStore'
 import { useBoardStore } from '@/stores/boardStore'
@@ -42,12 +42,17 @@ export const useCards = () => {
   }, [activeBoard, fetchCards, setCards])
 
   const activeBoardId = activeBoard?.id
+  const channelSeqRef = useRef(0)
 
   useEffect(() => {
     if (!activeBoardId) return
 
+    // Increment each run so channel name is unique even when removeChannel's
+    // async splice hasn't completed yet (Supabase singleton client, Strict Mode)
+    channelSeqRef.current += 1
+    const channelName = `cards-${activeBoardId}-${channelSeqRef.current}`
     const supabase = createClient()
-    const channel = supabase.channel(`cards-${activeBoardId}`)
+    const channel = supabase.channel(channelName)
 
     channel
       .on(
@@ -76,7 +81,6 @@ export const useCards = () => {
       .subscribe()
 
     return () => {
-      channel.unsubscribe()
       supabase.removeChannel(channel)
     }
   }, [activeBoardId])
